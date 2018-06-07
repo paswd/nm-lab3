@@ -56,7 +56,7 @@ TNum NewtonMethod(TNum x, vector <TNum> xi) {
 }
 
 void InterpolationPoly(void) {
-	TNum x = .1;
+	TNum x = PI / 3.;
 	vector <TNum> a({PI/8., 2.*PI/8., 3.*PI/8., 4.*PI/8.});
 	vector <TNum> b({PI/8., 5.*PI/16., 3.*PI/8., PI/2.});
 
