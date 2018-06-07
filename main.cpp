@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <cmath>
+#include <vector>
 #include <string>
 #include "types.h"
 
@@ -9,32 +10,87 @@ using namespace std;
 const string INCORRECT_SELECTION = "Неверная опция";
 
 /*
-=========
-SECTION 1
-=========
+========================
+INTERPOLATION POLYNOMIAL
+========================
+*/
+
+TNum InterpolationFunc(TNum x) {
+	return 1. / tan(x);
+}
+TNum LagrangeMethod(TNum x, vector <TNum> xi) {
+	TNum res = 0.;
+	for (size_t i = 0; i < xi.size(); i++) {
+		TNum y = InterpolationFunc(xi[i]);
+		for (size_t j = 0; j < xi.size(); j++) {
+			if (i != j) {
+				y *= (x - xi[j]) / (xi[i] - xi[j]);
+			}
+		}
+		res += y;
+	}
+	return abs(InterpolationFunc(x) - res);
+}
+TNum NewtonMethod(TNum x, vector <TNum> xi) {
+	size_t size = xi.size();
+	vector <vector <TNum>> arr(size);
+	for (size_t i = 0; i < size; i++) {
+		for (size_t j = 0; j < size; j++) {
+			if (i == 0) {
+				arr[i].push_back(InterpolationFunc(xi[j]));
+			} else {
+				if (!(i + j < size)) {
+					break;
+				}
+				arr[i].push_back((arr[i - 1][j + 1] - arr[i - 1][j]) / (xi[i + j] - xi[j]));
+			}
+		}
+	}
+	TNum res = 0.;
+	TNum dx = 1.;
+	for (size_t i = 0; i < size; i++) {
+		res += arr[i][0] * dx;
+		dx *= x - xi[i];
+	}
+	return abs(InterpolationFunc(x) - res);
+}
+
+void InterpolationPoly(void) {
+	TNum x = .1;
+	vector <TNum> a({PI/8., 2.*PI/8., 3.*PI/8., 4.*PI/8.});
+	vector <TNum> b({PI/8., 5.*PI/16., 3.*PI/8., PI/2.});
+
+	cout << "Метод Лагранжа:" << endl;
+	cout << "А)\t" <<  LagrangeMethod(x, a) << endl;
+	cout << "Б)\t" <<  LagrangeMethod(x, b) << endl;
+
+	cout << "Метод Ньютона:" << endl;
+	cout << "А)\t" <<  NewtonMethod(x, a) << endl;
+	cout << "Б)\t" <<  NewtonMethod(x, b) << endl;
+}
+
+
+/*
+===========
+CUBE SPLINE
+===========
+*/
+
+/*
+========================
+APPROXIMATION POLYNOMIAL
+========================
+*/
+
+/*
+=============
+DIFFERENCIALS
+=============
 */
 
 /*
 =========
-SECTION 2
-=========
-*/
-
-/*
-=========
-SECTION 3
-=========
-*/
-
-/*
-=========
-SECTION 4
-=========
-*/
-
-/*
-=========
-SECTION 5
+INTEGRATE
 =========
 */
 
@@ -64,7 +120,7 @@ int main(void) {
 
 	switch (selection) {
 		case 1:
-			//
+			InterpolationPoly();
 			break;
 		case 2:
 			//
@@ -73,6 +129,9 @@ int main(void) {
 			//
 			break;
 		case 4:
+			//
+			break;
+		case 5:
 			//
 			break;
 		case '\0':
