@@ -112,10 +112,10 @@ void CubeSpline(void) {
 	vector <TNum> d(table.size());
 	vector <TNum> h(table.size() - 1);
 
-	for(size_t i = 0; i < table.size(); i++) {
+	for (size_t i = 0; i < table.size(); i++) {
 		a[i] = table[i].second;
 	}
-	for(size_t i = 0; i < table.size() - 1; i++) {
+	for (size_t i = 0; i < table.size() - 1; i++) {
 		h[i] = table[i + 1].first - table[i].first;
 	}
 
@@ -123,20 +123,20 @@ void CubeSpline(void) {
 	vector <TNum> sub_b(table.size() - 2); 
 	vector <TNum> sub_c(table.size() - 2);
 	vector <TNum> sub_f(table.size() - 2);
-	for(size_t i = 0; i < table.size() - 3; i++) {
+	for (size_t i = 0; i < table.size() - 3; i++) {
 		sub_b[i] = h[i];
 		sub_a[i + 1] = h[i];
 	}
-	for(size_t i = 0; i < table.size() - 2; i++) {
+	for (size_t i = 0; i < table.size() - 2; i++) {
 		sub_c[i] = 2 * (h[i + 1] + h[i]);
 	}
-	for(size_t i = 1; i < table.size() - 1; i++) {
+	for (size_t i = 1; i < table.size() - 1; i++) {
 		sub_f[i - 1] = 3 * ((a[i + 1] - a[i]) / h[i] - (a[i] - a[i - 1]) / h[i - 1]);
 	}
 	c = CubeSplineSub(table.size() - 2, sub_a, sub_b, sub_c, sub_f);
 	//c.insert(c.begin(), 0);
 	c[0] = 0;
-	for(size_t i = 0; i < h.size() - 1; i++) {
+	for (size_t i = 0; i < h.size() - 1; i++) {
 		d[i] = (c[i+1] - c[i]) / (3 * h[i]);
 		b[i] = (a[i + 1] - a[i]) / h[i] - h[i] * (c[i + 1] + 2 * c[i]) / 3;
 	}
@@ -156,6 +156,104 @@ void CubeSpline(void) {
 APPROXIMATION POLYNOMIAL
 ========================
 */
+
+vector <TNum> GaussMethod(size_t size, vector <vector <TNum>> a, vector <TNum> b) {
+	for (size_t i = 0; i < size; i++) {
+		if (a[i][i] == 0.) {
+			for (size_t j = i + 1; j < size && a[j][i] == 0.; j++) {
+				if (j + 1 != size) {
+					swap(a[j + 1], a[i]);
+					swap(b[j + 1], b[i]);
+				}
+			}
+		}
+		for (size_t j = i + 1; j < size; j++) {
+			TNum tmp = a[j][i] / a[i][i];
+			if (tmp != 0.) {
+				for (size_t k = 0; k < size; ++k) {
+					a[j][k] -= a[i][k] * tmp;
+				}
+				b[j] -= b[i] * tmp;
+			}
+		}
+	}
+	for (size_t in = size; in > 0; in--) {
+		size_t i = in - 1;
+		for (size_t jn = i; jn > 0; jn--) {
+			size_t j = jn - 1;
+			TNum tmp = a[j][i] / a[i][i];
+			if (tmp != 0.0) {
+				for (size_t k = 0; k < size; k++) {
+					a[j][k] -= a[i][k] * tmp;
+				}
+				b[j] -= b[i] * tmp;
+			}
+		}
+	}
+	for (size_t i = 0; i < size; i++) {
+		b[i] /= a[i][i];
+	}
+	return b;
+}
+
+vector <TNum> ApproximationSub(size_t size, vector <pair <TNum, TNum>> table) {
+	vector <TNum> Sx(2 * size - 1);
+	vector <TNum> Sxy(size);
+	for (size_t i = 0; i < table.size(); i++) {
+		TNum add = 1.;
+		for (size_t j = 0; j < 2 * size - 1; j++) {
+			Sx[j] += add;
+			add *= table[i].first;
+		}
+	}
+	for (size_t i = 0; i < table.size(); i++) {
+		TNum add = table[i].second;
+		for (size_t j = 0; j < size; j++) {
+			Sxy[j] += add;
+			add *= table[i].first;
+		}
+	}
+	vector <vector<TNum>> matrix(size, vector<TNum>(size));
+	for (size_t i = 0; i < size; i++) {
+		for (size_t j = 0; j < size; j++) {
+			matrix[i][j] = Sx[i + j];
+		}
+	}
+	return GaussMethod(size, matrix, Sxy);
+}
+TNum ApproximationError(vector <TNum> coeff, vector <pair <TNum, TNum>> table) {
+	TNum res = 0;
+	for (size_t i = 0; i < table.size(); i++) {
+		TNum yn = coeff[coeff.size() - 1];
+		for (size_t jn = coeff.size() - 1; jn > 0; jn--) {
+			size_t j = jn - 1;
+			yn = coeff[j] + table[i].first * yn;
+		}
+		res += pow((table[i].second - yn), 2);
+	}
+	return sqrt(res);
+}
+void ApproximationMethod(void) {
+	vector <pair <TNum, TNum>> table(0);
+	table.push_back(make_pair(1.0, 2.4142));
+	table.push_back(make_pair(1.9, 1.0818));
+	table.push_back(make_pair(2.8, .50953));
+	table.push_back(make_pair(3.7, .11836));
+	table.push_back(make_pair(4.6, -.24008));
+
+	vector <TNum> c2 = ApproximationSub(2, table);
+	vector <TNum> c3 = ApproximationSub(3, table);
+	for (size_t i = 0; i < c2.size(); i++) {
+		cout << c2[i] << " ";
+	}
+	cout << endl;
+	cout << "ERROR = " << ApproximationError(c2, table) << endl;
+	for (size_t i = 0; i < c3.size(); i++) {
+		cout << c3[i] << " ";
+	}
+	cout << endl;
+	cout << "ERROR = " << ApproximationError(c3, table) << endl;
+}
 
 /*
 =============
@@ -201,7 +299,7 @@ int main(void) {
 			CubeSpline();
 			break;
 		case 3:
-			//
+			ApproximationMethod();
 			break;
 		case 4:
 			//
