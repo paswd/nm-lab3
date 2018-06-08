@@ -300,7 +300,57 @@ INTEGRATE
 =========
 */
 
+TNum IntegrateFunc(TNum x) {
+	return (3 * x + 4) / (2 * x + 7);
+}
 
+TNum IntegrateRectangleMethod(TNum a, TNum b, TNum h) {
+	TNum res = 0;
+	for (TNum x = a; x < b; x += h) {
+		res += IntegrateFunc(x + h / 2) * h;
+	}
+	return res;
+}
+TNum IntegrateTrapezeMethod(TNum a, TNum b, TNum h) {
+	TNum res = 0;
+	for (TNum x = a; x < b; x += h) {
+		res += h * (IntegrateFunc(x) + IntegrateFunc(x + h)) / 2.;
+	}
+	return res;
+}
+TNum IntegrateSimpsonMethod(TNum a, TNum b, TNum h) {
+	TNum res = 0;
+	for (TNum x = a; x < b; x += h) {
+		res += (IntegrateFunc(x) + 4. * IntegrateFunc(x + h / 2.) + IntegrateFunc(x + h)) * h / 6.; 
+	}
+	return res;
+}
+
+void IntegrateMethod(void) {
+	TNum a = -2.;
+	TNum b = 2.;
+	TNum h1 = 1.;
+	TNum h2 = .5;
+
+	TNum rect[2] = {
+		IntegrateRectangleMethod(a, b, h1),
+		IntegrateRectangleMethod(a, b, h2)
+	};
+	TNum trap[2] = {
+		IntegrateTrapezeMethod(a, b, h1),
+		IntegrateTrapezeMethod(a, b, h2)
+	};
+	TNum simpson[2] = {
+		IntegrateSimpsonMethod(a, b, h1),
+		IntegrateSimpsonMethod(a, b, h2)
+	};
+	cout << "Метод прямоугольников:" << endl;
+	cout << rect[0] << "\t" << rect[1] << "\t" << abs(rect[1] - rect[0]) << endl;
+	cout << "Метод трапеций:" << endl;
+	cout << trap[0] << "\t" << trap[1] << "\t" << abs(trap[1] - trap[0]) / 3. << endl;
+	cout << "Метод Симпсона:" << endl;
+	cout << simpson[0] << "\t" << simpson[1] << "\t" << abs(simpson[1] - simpson[0]) / 15. << endl;
+}
 
 
 /*
@@ -338,7 +388,7 @@ int main(void) {
 			DiffMethod();
 			break;
 		case 5:
-			//
+			IntegrateMethod();
 			break;
 		case '\0':
 			break;
