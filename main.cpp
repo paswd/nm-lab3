@@ -261,6 +261,39 @@ DIFFERENCIALS
 =============
 */
 
+TNum DiffLeft(TNum x, vector <pair <TNum, TNum>> table) {
+	size_t i;
+	for (i = 0; i + 1 < table.size() && table[i + 1].first < x; i++);
+	return (table[i + 1].second - table[i].second) / (table[i + 1].first - table[i].first);
+}
+TNum DiffRight(TNum x, vector <pair <TNum, TNum>> table) {
+	size_t i;
+	for (i = 0; i + 1 < table.size() && table[i].first < x; i++);
+	return (table[i + 1].second - table[i].second) / (table[i + 1].first - table[i].first);
+}
+TNum DiffSecondary(TNum x, vector <pair <TNum, TNum>> table) {
+	size_t i;
+	for (i = 0; i + 1 < table.size() && table[i].first < x; i++);
+	return 2 * (DiffRight(x, table) - DiffLeft(x, table)) / (table[i + 1].first - table[i - 1].first);
+}
+
+void DiffMethod(void) {
+	TNum x = .2;
+	vector <pair <TNum, TNum>> table(0);
+	table.push_back(make_pair(0., 1.));
+	table.push_back(make_pair(.1, 1.1052));
+	table.push_back(make_pair(.2, 1.2214));
+	table.push_back(make_pair(.3, 1.3499));
+	table.push_back(make_pair(.4, 1.4918));
+
+	cout << "Левая производная:" << endl;
+	cout << DiffLeft(x, table) << endl;
+	cout << "Правая производная:" << endl;
+	cout << DiffRight(x, table) << endl;
+	cout << "Вторая производная:" << endl;
+	cout << DiffSecondary(x, table) << endl;
+}
+
 /*
 =========
 INTEGRATE
@@ -302,7 +335,7 @@ int main(void) {
 			ApproximationMethod();
 			break;
 		case 4:
-			//
+			DiffMethod();
 			break;
 		case 5:
 			//
