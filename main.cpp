@@ -100,11 +100,6 @@ void CubeSpline(void) {
 	table.push_back(make_pair(2.8, .50953));
 	table.push_back(make_pair(3.7, .11836));
 	table.push_back(make_pair(4.6, -.24008));
-	/*table.push_back(make_pair(-0.4, 1.9823));
-	table.push_back(make_pair(-0.1, 1.6710));
-	table.push_back(make_pair(0.2, 1.3694));
-	table.push_back(make_pair(0.5, 1.0472));
-	table.push_back(make_pair(0.8, 0.6435));*/
 
 	vector <TNum> a(table.size());
 	vector <TNum> b(table.size());
